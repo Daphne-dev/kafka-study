@@ -1,0 +1,91 @@
+services:
+  kafka:
+    image: confluentinc/cp-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    environment:
+      # 카프카 힙 메모리 설정
+      KAFKA_HEAP_OPTS: '-Xmx400m -Xms400m'
+
+      # 카프카 브로커 번호 설정
+      KAFKA_BROKER_ID: 0
+
+      # 카프카 브로커의 통신을 위한 IP, port, 프로토콜 설정
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
+
+      # 카프카 클라이언트 또는 카프카 커멘드 라인 툴 통신을 위한 IP, port, 프로토콜 설정
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
+      # 보안 설정 시 프로토콜 매핑을 위한 설정
+      KSQL_SECURITY_PROTOCOL: SASL_SSL
+
+      # 네트워크를 통한 처리를 할 때 사용할 네트워크 스레드 개수
+      KAFKA_NUM_NETWORK_THREADS: 3
+
+      # 카프카 브로커 내부에서 사용할 스레드 개수 지정
+      KAFKA_NUM_IO_THREADS: 8
+
+      # 통신을 통해 받은 데이터를 파일로 저장할 디렉토리 위치
+      KAFKA_LOG_DIRS: /Users/kimdonghyeon/learning/kafka-study/kafka_2_12-2_5_0/data
+
+      # 파티션 개수를 명시하지 않고 토픽을 생성할 때 기본 설정되는 파티션 개수
+      # 파티션 수가 많아지면 병렬 처리 데이터 양이 늘어남.
+      KAFKA_NUM_PARTITIONS: 3
+
+      # 카프카 브로커가 저장한 파일이 삭제되기까지 걸리는 시간을 설정.
+      # 가장 작은 단위를 기준으로 하므로 log.retention.hours보다는 log.retention.ms를 사용하는 것이 좋음.
+      # log.retention.ms 값을 -1로 설정하면 파일이 삭제되지 않음.
+      KAFKA_KAFKA_LOG_RETENTION_HOURS: 168
+
+      # 카프카 브로커가 저장할 파일의 최대 크기를 지정.
+      # 데이터 양이 많아 이 크기를 채우면 새로운 파일이 생성됨.
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+
+      # 카프카 브로커가 저장한 파일을 삭제하기 위해 체크하는 간격 지정
+      KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000
+
+      ######### Zookeeper 설정 ################
+      # 카프카 브로커와 연동할 주키퍼의 IP와 port를 설정.
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      # 주키퍼의 세션 타임아웃 설정
+      KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 18000
+
+      # KAFKA_SOCKET_SEND_BUFFER_BYTES: 102400
+      # KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 102400
+      # KAFKA_SOCKET_REQUEST_MAX_BYTES: 104857600
+      # KAFKA_NUM_RECOVERY_THREADS_PER_DATA_DIR: 1
+      # KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      # KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      # KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      # KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    networks:
+      - data
+    volumes:
+      - './log:/Users/kimdonghyeon/learning/kafka-study/kafka_2_12-2_5_0/data'
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INI`T_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+    ports:
+      - 2181:2181
+    networks:
+      - data
+
+  cli:
+    build:
+      dockerfile: ./Dockerfile
+    networks:
+      - data
+
+networks:
+  data:
+# docker image 카프카 설정 파일 참고
+# https://docs.confluent.io/platform/current/installation/docker/config-reference.html#confluent-ak-configuration
