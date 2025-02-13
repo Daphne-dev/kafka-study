@@ -4,6 +4,6 @@ ENV CLI_DIR=/cli
 
 RUN mkdir ${CLI_DIR}
 WORKDIR ${CLI_DIR}
-RUN curl https://archive.apache.org/dist/kafka/2.5.0/kafka_2.12-2.5.0.tgz --output kafka.tgz --output kafka.tgz
+COPY kafka_2.12-2.5.0.tgz ${CLI_DIR}/kafka.tgz
 RUN tar -xvf kafka.tgz
 ENTRYPOINT ["top", "-b"]
